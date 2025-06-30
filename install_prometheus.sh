@@ -41,7 +41,7 @@ check_k8s
 
 # Ask before cloning repository
 if ask_yes_no "Do you want to clone the kube-prometheus repository from GitHub?"; then
-    GIT_URL="https://github.com/prometheus-operator/kube-prometheus.git"
+    GIT_URL="https://github.com/NoahAmethyst/kube-prometheus.git"
 
     if ask_yes_no "Do you want to use China mirror (replace github.com with kkgithub.com)?"; then
         GIT_URL=$(replace_github_url "$GIT_URL")
