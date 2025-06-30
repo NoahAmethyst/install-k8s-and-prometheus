@@ -26,6 +26,12 @@ check_k8s() {
     fi
 }
 
+# Function to replace github.com with kkgithub.com in URL
+replace_github_url() {
+    local url="$1"
+    echo "$url" | sed 's/github.com/kkgithub.com/'
+}
+
 # Main script
 echo "Kube-Prometheus installation script"
 echo "----------------------------------"
@@ -35,8 +41,17 @@ check_k8s
 
 # Ask before cloning repository
 if ask_yes_no "Do you want to clone the kube-prometheus repository from GitHub?"; then
+    GIT_URL="https://github.com/prometheus-operator/kube-prometheus.git"
+
+    if ask_yes_no "Do you want to use China mirror (replace github.com with kkgithub.com)?"; then
+        GIT_URL=$(replace_github_url "$GIT_URL")
+        echo "Using China mirror URL: $GIT_URL"
+    else
+        echo "Using original GitHub URL: $GIT_URL"
+    fi
+
     echo "Cloning kube-prometheus repository..."
-    git clone https://github.com/prometheus-operator/kube-prometheus.git
+    git clone "$GIT_URL"
     if [ $? -ne 0 ]; then
         echo "Failed to clone repository. Please check your network connection."
         exit 1
