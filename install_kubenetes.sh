@@ -55,7 +55,7 @@ read -p "Enter your choice (1 or 2): " choice
 case $choice in
     1)
         echo "Installing single-node Kubernetes cluster..."
-        sudo sealos run registry.cn-shanghai.aliyuncs.com/labring/kubernetes:v1.29.9 \
+        sudo sealos run registry.cn-shanghai.aliyuncs.com/labring/kubernetes-docker:v1.28.0 \
             registry.cn-shanghai.aliyuncs.com/labring/helm:v3.9.4 \
             registry.cn-shanghai.aliyuncs.com/labring/calico:v3.24.1 --single
         ;;
@@ -65,7 +65,7 @@ case $choice in
         WORK_NODES=$(get_input "Enter worker node IPs (comma separated)" "192.168.0.2,192.168.0.3")
         CLUSTER_PASSWORD=$(get_input "Enter cluster password" "d93k6prHwYlH")
 
-        sudo sealos run registry.cn-shanghai.aliyuncs.com/labring/kubernetes:v1.29.9 \
+        sudo sealos run registry.cn-shanghai.aliyuncs.com/labring/kubernetes-docker:v1.28.0 \
             registry.cn-shanghai.aliyuncs.com/labring/helm:v3.9.4 \
             registry.cn-shanghai.aliyuncs.com/labring/calico:v3.24.1 \
             --masters "$MASTER_NODES" \
