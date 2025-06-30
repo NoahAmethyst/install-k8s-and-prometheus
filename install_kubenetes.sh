@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # Function to ask yes/no question
 ask_yes_no() {
     local prompt="$1 (y/n) "
@@ -21,20 +22,34 @@ get_input() {
     echo "${input:-$default}"
 }
 
-# Set Sealos version
-echo "Getting latest Sealos version from GitHub..."
-VERSION=$(curl -s https://api.github.com/repos/labring/sealos/releases/latest | grep -oE '"tag_name": "[^"]+"' | head -n1 | cut -d'"' -f4)
-echo "Latest Sealos version is: $VERSION"
+# Function to check if Sealos is installed and get current version
+check_sealos_installed() {
+    if command -v sealos &> /dev/null; then
+        CURRENT_VERSION=$(sealos version --short 2>/dev/null || sealos version | head -n1 | awk '{print $3}')
+        echo "Sealos is already installed (version: $CURRENT_VERSION)"
+        return 0
+    else
+        echo "Sealos is not installed"
+        return 1
+    fi
+}
 
-# Ask if in China to set proxy
-if ask_yes_no "Are you in China and need to use a proxy for GitHub?"; then
-    export PROXY_PREFIX="https://ghfast.top"
-    echo "Proxy set to $PROXY_PREFIX"
-fi
+# Function to install or update Sealos
+install_or_update_sealos() {
+    # Set Sealos version
+    echo "Getting latest Sealos version from GitHub..."
+    LATEST_VERSION=$(curl -s https://api.github.com/repos/labring/sealos/releases/latest | grep -oE '"tag_name": "[^"]+"' | head -n1 | cut -d'"' -f4)
+    echo "Latest Sealos version is: $LATEST_VERSION"
 
-# Install Sealos with yum(RPM)
-echo "Setting up labring yum repository..."
-sudo tee /etc/yum.repos.d/labring.repo << EOF
+    # Ask if in China to set proxy
+    if ask_yes_no "Are you in China and need to use a proxy for GitHub?"; then
+        export PROXY_PREFIX="https://ghfast.top"
+        echo "Proxy set to $PROXY_PREFIX"
+    fi
+
+    # Install Sealos with yum(RPM)
+    echo "Setting up labring yum repository..."
+    sudo tee /etc/yum.repos.d/labring.repo << EOF
 [fury]
 name=labring Yum Repo
 baseurl=https://yum.fury.io/labring/
@@ -42,9 +57,28 @@ enabled=1
 gpgcheck=0
 EOF
 
-echo "Cleaning yum cache and installing Sealos..."
-sudo yum clean all
-sudo yum install -y sealos
+    echo "Cleaning yum cache and installing Sealos..."
+    sudo yum clean all
+    sudo yum install -y sealos
+}
+
+# Check if Sealos is installed
+if check_sealos_installed; then
+    if ask_yes_no "Do you want to check for updates and reinstall if needed?"; then
+        install_or_update_sealos
+    else
+        echo "Using existing Sealos installation"
+    fi
+else
+    echo "Sealos not found, installing..."
+    install_or_update_sealos
+fi
+
+# Verify Sealos installation
+if ! command -v sealos &> /dev/null; then
+    echo "Error: Sealos installation failed. Please check the installation process."
+    exit 1
+fi
 
 # Ask which Kubernetes installation to perform
 echo "Choose Kubernetes installation type:"
@@ -77,7 +111,5 @@ case $choice in
         exit 1
         ;;
 esac
-
-
 
 echo "Kubernetes installation completed!"
