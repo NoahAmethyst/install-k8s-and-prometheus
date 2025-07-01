@@ -80,6 +80,15 @@ if ! command -v sealos &> /dev/null; then
     exit 1
 fi
 
+# Ask if Calico network plugin should be installed
+CALICO_PLUGIN=""
+if ask_yes_no "Do you want to install Calico network plugin?"; then
+    CALICO_PLUGIN="registry.cn-shanghai.aliyuncs.com/labring/calico:v3.24.1"
+    echo "Calico will be installed."
+else
+    echo "Calico will not be installed."
+fi
+
 # Ask which Kubernetes installation to perform
 echo "Choose Kubernetes installation type:"
 echo "1) Single-node cluster"
@@ -89,9 +98,14 @@ read -p "Enter your choice (1 or 2): " choice
 case $choice in
     1)
         echo "Installing single-node Kubernetes cluster..."
-        sudo sealos run registry.cn-shanghai.aliyuncs.com/labring/kubernetes:v1.29.9 \
-            registry.cn-shanghai.aliyuncs.com/labring/helm:v3.9.4 \
-            registry.cn-shanghai.aliyuncs.com/labring/calico:v3.24.1 --single
+        if [ -n "$CALICO_PLUGIN" ]; then
+            sudo sealos run registry.cn-shanghai.aliyuncs.com/labring/kubernetes:v1.29.9 \
+                registry.cn-shanghai.aliyuncs.com/labring/helm:v3.9.4 \
+                $CALICO_PLUGIN --single
+        else
+            sudo sealos run registry.cn-shanghai.aliyuncs.com/labring/kubernetes:v1.29.9 \
+                registry.cn-shanghai.aliyuncs.com/labring/helm:v3.9.4 --single
+        fi
         ;;
     2)
         echo "Installing multi-node Kubernetes cluster..."
@@ -99,12 +113,20 @@ case $choice in
         WORK_NODES=$(get_input "Enter worker node IPs (comma separated)" "192.168.0.2,192.168.0.3")
         CLUSTER_PASSWORD=$(get_input "Enter cluster password" "d93k6prHwYlH")
 
-        sudo sealos run registry.cn-shanghai.aliyuncs.com/labring/kubernetes:v1.29.9 \
-            registry.cn-shanghai.aliyuncs.com/labring/helm:v3.9.4 \
-            registry.cn-shanghai.aliyuncs.com/labring/calico:v3.24.1 \
-            --masters "$MASTER_NODES" \
-            --nodes "$WORK_NODES" \
-            -p "$CLUSTER_PASSWORD"
+        if [ -n "$CALICO_PLUGIN" ]; then
+            sudo sealos run registry.cn-shanghai.aliyuncs.com/labring/kubernetes:v1.29.9 \
+                registry.cn-shanghai.aliyuncs.com/labring/helm:v3.9.4 \
+                $CALICO_PLUGIN \
+                --masters "$MASTER_NODES" \
+                --nodes "$WORK_NODES" \
+                -p "$CLUSTER_PASSWORD"
+        else
+            sudo sealos run registry.cn-shanghai.aliyuncs.com/labring/kubernetes:v1.29.9 \
+                registry.cn-shanghai.aliyuncs.com/labring/helm:v3.9.4 \
+                --masters "$MASTER_NODES" \
+                --nodes "$WORK_NODES" \
+                -p "$CLUSTER_PASSWORD"
+        fi
         ;;
     *)
         echo "Invalid choice. Exiting."
