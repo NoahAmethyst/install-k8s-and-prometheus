@@ -91,7 +91,7 @@ case $choice in
         echo "Installing single-node Kubernetes cluster..."
         sudo sealos run registry.cn-shanghai.aliyuncs.com/labring/kubernetes:v1.29.9 \
             registry.cn-shanghai.aliyuncs.com/labring/helm:v3.9.4 \
-            registry.cn-shanghai.aliyuncs.com/labring/cilium:v1.13.4 --single
+            registry.cn-shanghai.aliyuncs.com/labring/calico:v3.24.1 --single
         ;;
     2)
         echo "Installing multi-node Kubernetes cluster..."
@@ -101,7 +101,7 @@ case $choice in
 
         sudo sealos run registry.cn-shanghai.aliyuncs.com/labring/kubernetes:v1.29.9 \
             registry.cn-shanghai.aliyuncs.com/labring/helm:v3.9.4 \
-            registry.cn-shanghai.aliyuncs.com/labring/cilium:v1.13.4 \
+            registry.cn-shanghai.aliyuncs.com/labring/calico:v3.24.1 \
             --masters "$MASTER_NODES" \
             --nodes "$WORK_NODES" \
             -p "$CLUSTER_PASSWORD"
