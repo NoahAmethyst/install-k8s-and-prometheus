@@ -99,11 +99,11 @@ case $choice in
     1)
         echo "Installing single-node Kubernetes cluster..."
         if [ -n "$CALICO_PLUGIN" ]; then
-            sudo sealos run registry.cn-shanghai.aliyuncs.com/labring/kubernetes:v1.29.9 \
+            sudo sealos run registry.cn-shanghai.aliyuncs.com/labring/kubernetes-docker:v1.28.0 \
                 registry.cn-shanghai.aliyuncs.com/labring/helm:v3.9.4 \
                 $CALICO_PLUGIN --single
         else
-            sudo sealos run registry.cn-shanghai.aliyuncs.com/labring/kubernetes:v1.29.9 \
+            sudo sealos run registry.cn-shanghai.aliyuncs.com/labring/kubernetes-docker:v1.28.0 \
                 registry.cn-shanghai.aliyuncs.com/labring/helm:v3.9.4 --single
         fi
         ;;
@@ -114,14 +114,14 @@ case $choice in
         CLUSTER_PASSWORD=$(get_input "Enter cluster password" "d93k6prHwYlH")
 
         if [ -n "$CALICO_PLUGIN" ]; then
-            sudo sealos run registry.cn-shanghai.aliyuncs.com/labring/kubernetes:v1.29.9 \
+            sudo sealos run registry.cn-shanghai.aliyuncs.com/labring/kubernetes-docker:v1.28.0 \
                 registry.cn-shanghai.aliyuncs.com/labring/helm:v3.9.4 \
                 $CALICO_PLUGIN \
                 --masters "$MASTER_NODES" \
                 --nodes "$WORK_NODES" \
                 -p "$CLUSTER_PASSWORD"
         else
-            sudo sealos run registry.cn-shanghai.aliyuncs.com/labring/kubernetes:v1.29.9 \
+            sudo sealos run registry.cn-shanghai.aliyuncs.com/labring/kubernetes-docker:v1.28.0 \
                 registry.cn-shanghai.aliyuncs.com/labring/helm:v3.9.4 \
                 --masters "$MASTER_NODES" \
                 --nodes "$WORK_NODES" \
